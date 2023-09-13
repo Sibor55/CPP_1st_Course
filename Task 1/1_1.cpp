@@ -6,14 +6,14 @@ int main() {
     int A;
     int B;
     int C;
-    int S;
-    int p;
+    float S;
+    float p;
 
     std::cin >> A;
     std::cin >> B;
     std::cin >> C;
 
-    p = (A+B+C)/2;
+    p = (A+B+C)/2.0;
     S = std::sqrt(p*(p-A)*(p-B)*(p-C));
     std::cout << "S = " << S << std::endl;
 
