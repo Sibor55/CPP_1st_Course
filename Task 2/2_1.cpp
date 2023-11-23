@@ -5,7 +5,7 @@
 #include <bitset>
 
 int main() {
-    std::bitset<16> set;
+    std::bitset<32> set;
     unsigned int x;
     unsigned int tmp;
     unsigned char i;
