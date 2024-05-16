@@ -52,5 +52,5 @@
         "streambuf": "cpp",
         "typeinfo": "cpp"
     },
-    "cmake.sourceDirectory": "C:/Users/Borisov/projects/sfmlstuff"
+    "cmake.sourceDirectory": "C:/Users/User/projects/CPP_1st_Course/build/_deps/sfml-subbuild"
 }
