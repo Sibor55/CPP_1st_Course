@@ -28,10 +28,10 @@ private:
     bool negative;
 
 public:
-    // Базовый конструктор
+    // Конструктор
     BigInt() : negative(false) {}
 
-    // Конструктор из целого числа
+    // Конструктор по инту
     BigInt(int number)
     {
         if (number < 0)
@@ -55,7 +55,7 @@ public:
         }
     }
 
-    // Конструктор из строки
+    // Конструктор по стрингу
     BigInt(const std::string &number)
     {
         int start = 0;
@@ -96,14 +96,47 @@ public:
     // Деструктор
     ~BigInt() {}
 
-    // Оператор сложения
-    BigInt operator+(const BigInt &other) const
+    // Вычитание
+    BigInt operator-(const BigInt &other) const
     {
-        BigInt result = *this;
         if (negative != other.negative)
         {
-            return result - other;
+            // If signs are different, add the absolute values
+            BigInt absOther = other;
+            absOther.negative = false;
+            return *this + absOther;
         }
+
+        BigInt result;
+        int borrow = 0;
+        for (size_t i = 0; i < std::max(digits.size(), other.digits.size()); ++i)
+        {
+            int digit = (i < digits.size() ? digits[i] : 0) - borrow;
+            if (i < other.digits.size())
+                digit -= other.digits[i];
+            borrow = (digit < 0);
+            if (borrow)
+                digit += base;
+            result.digits.push_back(digit);
+        }
+
+        while (result.digits.size() > 1 && result.digits.back() == 0)
+            result.digits.pop_back();
+
+        result.negative = (negative && !other.negative) || (!negative && other.negative);
+
+        return result;
+    }
+
+    // Сумма
+    BigInt operator+(const BigInt &other) const
+    {
+        if (negative != other.negative)
+        {
+            return *this - other;
+        }
+
+        BigInt result = *this;
         int carry = 0;
         for (size_t i = 0; i < std::max(digits.size(), other.digits.size()) || carry; ++i)
         {
@@ -117,18 +150,19 @@ public:
         return result;
     }
 
-    // Оператор умножения
+    // Умножение
     BigInt operator*(const BigInt &other) const
     {
         BigInt result;
-        result.digits.resize(digits.size() + other.digits.size());
+        result.digits.resize(digits.size() + other.digits.size()); // Верхняя граница кольва цифр в операции
         for (size_t i = 0; i < digits.size(); ++i)
         {
             for (size_t j = 0, carry = 0; j < other.digits.size() || carry; ++j)
             {
-                long long cur = result.digits[i + j] + digits[i] * 1LL * (j < other.digits.size() ? other.digits[j] : 0) + carry;
+                long long cur = result.digits[i + j] + digits[i] * 1LL * (j < other.digits.size() ? other.digits[j] : 0) + carry; // LL  - long long чтобы на всякий случай не переполнилось
+
                 result.digits[i + j] = cur % base;
-                carry = cur / base;
+                carry = cur / base; // Перенос
             }
         }
         while (result.digits.size() > 1 && result.digits.back() == 0)
@@ -137,7 +171,7 @@ public:
         return result;
     }
 
-    // Оператор меньше
+    // Меньше
     bool operator<(const BigInt &other) const
     {
         if (negative != other.negative)
@@ -150,37 +184,25 @@ public:
         return false;
     }
 
-    // Оператор больше
+    // Больше
     bool operator>(const BigInt &other) const
     {
         return other < *this;
     }
 
-    // Оператор равно
+    // Равно
     bool operator==(const BigInt &other) const
     {
         return !(*this < other) && !(other < *this);
     }
 
-    // Оператор не равно
+    // Не равно
     bool operator!=(const BigInt &other) const
     {
         return !(*this == other);
     }
 
-    // Оператор меньше или равно
-    bool operator<=(const BigInt &other) const
-    {
-        return !(other < *this);
-    }
-
-    // Оператор больше или равно
-    bool operator>=(const BigInt &other) const
-    {
-        return !(*this < other);
-    }
-
-    // Оператор вывода в поток
+    // Вывод
     friend std::ostream &operator<<(std::ostream &os, const BigInt &number)
     {
         if (number.negative)
@@ -193,28 +215,43 @@ public:
         return os;
     }
 
-    // Оператор ввода из потока
+    // Ввод
     friend std::istream &operator>>(std::istream &is, BigInt &number)
     {
-        std::string str
+        std::string str;
         is >> str;
         number = BigInt(str);
         return is;
     }
 };
+
 int main()
 {
-
     std::string a_str, b_str;
     std::cin >> a_str >> b_str;
     BigInt a(a_str), b(b_str);
 
     if (a < b)
     {
-        std::cout << "a<b" << std::endl;
+        std::cout << "a < b" << std::endl;
     }
-    else
+
+    if (a > b)
     {
-        std::cout << "a>b" << std::endl;
+        std::cout << "a < b" << std::endl;
     }
+
+    if (a == b)
+    {
+        std::cout << "a = b" << std::endl;
+    }
+
+    BigInt sum = a + b;
+    BigInt subtr = a - b;
+    BigInt product = a * b;
+    std::cout << "a + b = " << sum << std::endl;
+    std::cout << "a - b = " << subtr << std::endl;
+    std::cout << "a * b = " << product << std::endl;
+
+    return 0;
 }
