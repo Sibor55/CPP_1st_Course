@@ -10,6 +10,8 @@
 // 7.     Метод или оператор для получения и изменения элемента матрицы по индексу
 
 // Продемонстрируйте работу с классом.
+#include <iostream>
+#include <stdexcept>
 
 class Matrix
 {
@@ -40,6 +42,18 @@ public:
     // Оператор присваивания копированием
     Matrix &operator=(const Matrix &);
 
+    // Операторы сложения
+    Matrix operator+(const Matrix &) const;
+    Matrix operator+(const int &) const;
+    Matrix &operator+=(const Matrix &);
+    Matrix &operator+=(const int &);
+    Matrix &operator++();
+
+    // Операторы умножения
+    Matrix operator*(const Matrix &) const;
+    Matrix operator*(const int &) const;
+    Matrix &operator*=(const Matrix &);
+    Matrix &operator*=(const int &);
 };
 
 Matrix::Matrix(int rows, int cols) : rows_(rows), cols_(cols)
@@ -63,7 +77,7 @@ Matrix::Matrix() : rows_(0), cols_(0), matrix_(nullptr) {}
 
 Matrix::~Matrix()
 {
-    for (int i = 0; i < rows_; ++i)
+    for (int i = 0; i < rows_; i++)
     {
         delete[] matrix_[i];
     }
@@ -77,7 +91,7 @@ Matrix::Matrix(const Matrix &other) : rows_(other.rows_), cols_(other.cols_)
     {
         for (int j = 0; j < cols_; j++)
         {
-            matrix_[i][j] = other.matrix_[i][j];  
+            matrix_[i][j] = other.matrix_[i][j];
         }
     }
 }
@@ -88,7 +102,7 @@ Matrix &Matrix::operator=(const Matrix &other)
         return *this; // Проверка на самоприсваивание
 
     // Освобождаем текущую память
-    for (int i = 0; i < rows_; ++i)
+    for (int i = 0; i < rows_; i++)
     {
         delete[] matrix_[i];
     }
@@ -98,16 +112,167 @@ Matrix &Matrix::operator=(const Matrix &other)
     rows_ = other.rows_;
     cols_ = other.cols_;
     allocSpace();
-    for (int i = 0; i < rows_; ++i)
+    for (int i = 0; i < rows_; i++)
     {
-        for (int j = 0; j < cols_; ++j)
+        for (int j = 0; j < cols_; j++)
         {
             matrix_[i][j] = other.matrix_[i][j];
         }
     }
     return *this;
 }
+
+Matrix Matrix::operator+(const Matrix &other) const
+{
+    if (rows_ != other.rows_ || cols_ != other.cols_)
+    {
+        throw std::invalid_argument("Матрицы не могут быть умножены: несоответствие размеров");
+    }
+
+    Matrix result(rows_, cols_);
+    for (int i = 0; i < rows_; i++)
+    {
+        for (int j = 0; j < cols_; j++)
+        {
+            result.matrix_[i][j] = matrix_[i][j] + other.matrix_[i][j];
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator+(const int &num) const
+{
+    Matrix result(rows_, cols_);
+    for (int i = 0; i < rows_; i++)
+    {
+        for (int j = 0; i < cols_; j++)
+        {
+            result.matrix_[i][j] = matrix_[i][j] + num;
+        }
+    }
+    return result;
+}
+
+Matrix &Matrix::operator+=(const Matrix &other)
+{
+
+    if (rows_ != other.rows_ || cols_ != other.cols_)
+    {
+        throw std::invalid_argument("Матрицы не могут быть умножены: несоответствие размеров");
+    }
+
+    for (int i = 0; i < rows_; i++)
+    {
+        for (int j = 0; j < cols_; j++)
+        {
+            matrix_[i][j] = matrix_[i][j] + other.matrix_[i][j];
+        }
+    }
+    return *this;
+}
+
+Matrix &Matrix::operator+=(const int &num)
+{
+
+    for (int i = 0; i < rows_; i++)
+    {
+        for (int j = 0; j < cols_; j++)
+        {
+            matrix_[i][j] = matrix_[i][j] + num;
+        }
+    }
+    return *this;
+}
+
+
+Matrix Matrix::operator*(const Matrix &other) const
+{
+    if (cols_ != other.rows_)
+    {
+        throw std::invalid_argument("Матрицы не могут быть умножены: несоответствие размеров");
+    }
+
+    Matrix result(rows_, other.cols_);
+    for (int i = 0; i < rows_; ++i)
+    {
+        for (int j = 0; j < other.cols_; ++j)
+        {
+            result.matrix_[i][j] = 0;
+            for (int k = 0; k < cols_; ++k)
+            {
+                result.matrix_[i][j] += matrix_[i][k] * other.matrix_[k][j];
+            }
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator*(const int &num) const
+{
+    Matrix result(rows_, cols_);
+    for (int i = 0; i < rows_; i++)
+    {
+        for (int j = 0; j < cols_; j++)
+        {
+            result.matrix_[i][j] = matrix_[i][j] * num;
+        }
+    }
+    return result;
+}
+
+// Matrix &Matrix::operator*=(const Matrix &other)
+// {
+//     if (cols_ != other.rows_)
+//     {
+//         throw std::invalid_argument("Матрицы не могут быть умножены: несоответствие размеров");
+//     }
+//     Matrix result(rows_, other.cols_);
+//     for (int i = 0; i < rows_; ++i)
+//     {
+//         for (int j = 0; j < other.cols_; ++j)
+//         {
+//             result.matrix_[i][j] = 0;
+//             for (int k = 0; k < cols_; ++k)
+//             {
+//                 result.matrix_[i][j] += matrix_[i][k] * other.matrix_[k][j];
+//             }
+//         }
+//     }
+//     *this = result;
+//     return *this;
+// }
+
+Matrix &Matrix::operator*=(const Matrix &other)
+{
+    if (cols_ != other.rows_)
+    {
+        throw std::invalid_argument("Матрицы не могут быть умножены: несоответствие размеров");
+    }
+
+    Matrix result = (*this) * other;
+    *this = result;
+    return *this;
+}
+
+Matrix &Matrix::operator*=(const int &num)
+{
+    for (int i = 0; i < rows_; i++)
+    {
+        for (int j = 0; i < cols_; j++)
+        {
+            matrix_[i][j] *= num;
+
+        }
+    }
+    return *this;
+}
+
 int main()
 {
+    Matrix m1(3, 3);
+    Matrix m2(3, 3);
+    m1 += 12;
+    m2 += 12;
+    m1 *= m2;
     return 0;
 }
