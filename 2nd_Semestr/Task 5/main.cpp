@@ -13,7 +13,6 @@
 #include <iostream>
 #include <stdexcept>
 
-
 class Matrix
 {
 private:
@@ -55,10 +54,9 @@ public:
     Matrix operator*(const int &) const;
     Matrix &operator*=(const Matrix &);
     Matrix &operator*=(const int &);
-    
+
+    friend std::ostream &operator<<(std::ostream &, const Matrix &);
 };
-
-
 
 Matrix::Matrix(int rows, int cols) : rows_(rows), cols_(cols)
 {
@@ -188,7 +186,6 @@ Matrix &Matrix::operator+=(const int &num)
     return *this;
 }
 
-
 Matrix Matrix::operator*(const Matrix &other) const
 {
     if (cols_ != other.rows_)
@@ -265,21 +262,34 @@ Matrix &Matrix::operator*=(const int &num)
         for (int j = 0; i < cols_; j++)
         {
             matrix_[i][j] *= num;
-
         }
     }
     return *this;
 }
 
+std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
+{
+    for (int i = 0; i < matrix.rows_; i++)
+    {
+        os << std::endl;
+        for (int j = 0; j < matrix.cols_; j++)
+        {
+            os << " [" << i << "] [" << j << "] ";
+            os << matrix.matrix_[i][j] << " ";
+        }
+    }
+    return os;
+}
+
 int main()
 {
-    Matrix m1(3, 3);
-    Matrix m2(3, 3);
-    m1 += 12;
+    Matrix m1(3, 1);
+    Matrix m2(1, 3);
+    m1 += 11;
     m2 += 12;
     m1 *= m2;
-    
-    
-    
+
+    std::cout << m1;
+
     return 0;
 }
