@@ -3,7 +3,7 @@
 // В составе класса должны быть:
 // 1.     Конструктор копирования
 // 2.     Оператор присваивания копированием
-// 3.     Оператор ввода и вывода
+// 3.     Оператор ввода и выводаgc
 // 4.     Операторы +, +=, *, *=
 // 5.     Оператор ++, который увеличивает все элементы матрицы на 1
 // 6.     Метод вычисления определителя
@@ -12,6 +12,7 @@
 // Продемонстрируйте работу с классом.
 #include <iostream>
 #include <stdexcept>
+
 
 class Matrix
 {
@@ -54,7 +55,10 @@ public:
     Matrix operator*(const int &) const;
     Matrix &operator*=(const Matrix &);
     Matrix &operator*=(const int &);
+    
 };
+
+
 
 Matrix::Matrix(int rows, int cols) : rows_(rows), cols_(cols)
 {
@@ -274,5 +278,8 @@ int main()
     m1 += 12;
     m2 += 12;
     m1 *= m2;
+    
+    
+    
     return 0;
 }

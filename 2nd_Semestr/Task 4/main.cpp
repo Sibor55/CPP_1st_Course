@@ -101,7 +101,7 @@ public:
     {
         if (negative != other.negative)
         {
-            // If signs are different, add the absolute values
+            
             BigInt absOther = other;
             absOther.negative = false;
             return *this + absOther;
