@@ -20,6 +20,7 @@
 
  */
 #include <iostream>
+#include <cstring> // Для функции strlen
 
 class string
 {
@@ -28,218 +29,159 @@ private:
   size_t length;
 
 public:
-  string() : m_str(nullptr), length(0){};
-  string(const char *str);
-  string(const string &other);
-  // Методы
-  void print(int index = -1);
-  size_t len();
-  size_t find(char c);
-  // todo: дописать методы
-  char &at(size_t index);
-  char *c_str();
+  // Базовый конструктор
+  string() : m_str(nullptr), length(0) {}
 
-  string &operator=(const string &other);
-  string operator+(const string &other) const;
-  string &operator+=(const string &other);
-
-  // // Оператор []
-  char &operator[](size_t index);
-
-  // // Операторы сравнения
-  int compare(const string &other) const;
-  bool operator<(const string &other) const;
-  bool operator>(const string &other) const;
-  bool operator==(const string &other) const;
-  ~string();
-};
-
-string::string(const char *str)
-{
-  length = 0;
-  while (str[length] != '\0')
+  // Конструктор из C-строки
+  string(const char *str)
   {
-    ++length;
+    if (str)
+    {
+      length = std::strlen(str);
+      m_str = new char[length + 1];
+      std::strcpy(m_str, str);
+    }
+    else
+    {
+      m_str = nullptr;
+      length = 0;
+    }
   }
-  m_str = new char[length + 1];
-  for (size_t i = 0; i < length; i++)
+
+  // Конструктор копирования
+  string(const string &other) : length(other.length)
   {
-    m_str[i] = str[i];
+    m_str = new char[length + 1];
+    std::strcpy(m_str, other.m_str);
   }
-  m_str[length] = '\0';
-}
 
-string::string(const string &other) : length(other.length)
-{
-  m_str = new char[length + 1];
-  for (size_t i = 0; i < length; i++)
-    m_str[i] = other.m_str[i];
-  m_str[length] = '\0';
-}
-
-void string::print(int index)
-{
-  if (index < 0)
-  {
-    std::cout << m_str << std::endl;
-  }
-  else if (index >= length)
-  {
-    std::cerr << "Index out of bounds" << std::endl;
-  }
-  else
-  {
-    std::cout << m_str[index] << std::endl;
-  }
-}
-
-size_t string::len()
-{
-  return this->length;
-}
-
-size_t string::find(char c)
-{
-
-  for (size_t i = 0; i < length; i++)
-    if (m_str[i] == c)
-      return i;
-
-  return 0;
-}
-
-char &string::at(size_t index)
-{
-  if (index >= length)
-  {
-    std::cerr << "Index out of bounds" << std::endl;
-  }
-  return m_str[index];
-}
-
-char *string::c_str()
-{
-  return this->m_str;
-}
-
-string &string::operator=(const string &other)
-{
-  if (this != &other)
+  // Деструктор
+  ~string()
   {
     delete[] m_str;
-    length = other.length;
-    m_str = new char[length + 1];
+  }
 
-    for (size_t i = 0; i < length; i++)
+  // Оператор присваивания копированием
+  string &operator=(const string &other)
+  {
+    if (this != &other)
     {
-      m_str[i] = other.m_str[i];
+      delete[] m_str;
+      length = other.length;
+      m_str = new char[length + 1];
+      std::strcpy(m_str, other.m_str);
     }
-    m_str[length] = '\0';
+    return *this;
   }
-  return *this;
-}
 
-string string::operator+(const string &other) const
-{
-  size_t result_length = length + other.length;
-  char *temp = new char[result_length + 1];
-
-  for (size_t i = 0; i < length; i++)
+  // Метод для получения длины строки
+  size_t len() const
   {
-    temp[i] = m_str[i];
+    return length;
   }
-  for (size_t i = 0; i < other.length; i++)
+
+  // Метод для поиска первого вхождения символа
+  size_t find(char c) const
   {
-    temp[length + i] = other.m_str[i];
+    for (size_t i = 0; i < length; ++i)
+    {
+      if (m_str[i] == c)
+      {
+        return i;
+      }
+    }
+    return std::string::npos;
   }
-  temp[result_length] = '\0';
 
-  string result(temp);
-  delete[] temp;
-  return result;
-}
-
-string &string::operator+=(const string &other)
-{
-  size_t result_length = length + other.length;
-  char *temp = new char[result_length + 1];
-
-  for (size_t i = 0; i < length; i++)
+  // Метод для получения C-строки
+  const char *c_str() const
   {
-    temp[i] = m_str[i];
+    return m_str;
   }
-  for (size_t i = 0; i < other.length; i++)
+
+  // Метод at с проверкой на выход за пределы строки
+  char &at(size_t index)
   {
-    temp[length + i] = other.m_str[i];
+    if (index >= length)
+    {
+      throw std::out_of_range("Index out of bounds");
+    }
+    return m_str[index];
   }
-  temp[result_length] = '\0';
 
-  delete[] m_str;
-  m_str = temp;
-  length = result_length;
-  return *this;
-}
-
-char &string::operator[](size_t index)
-{
-  if (index >= length)
+  const char &at(size_t index) const
   {
-    std::cerr << "Index out of bounds" << std::endl;
+    if (index >= length)
+    {
+      throw std::out_of_range("Index out of bounds");
+    }
+    return m_str[index];
   }
-  return m_str[index];
-}
-int string::compare(const string &other) const
-{
-  const char *str1 = m_str;
-  const char *str2 = other.m_str;
 
-  while (*str1 && *str2 && *str1 == *str2)
+  // Оператор []
+  char &operator[](size_t index)
   {
-    ++str1;
-    ++str2;
+    return m_str[index];
   }
 
-  if (*str1 < *str2)
+  const char &operator[](size_t index) const
   {
-    return -1;
+    return m_str[index];
   }
-  if (*str1 > *str2)
+
+  // Операторы сравнения
+  bool operator<(const string &other) const
   {
-    return 1;
+    return std::strcmp(m_str, other.m_str) < 0;
   }
-  return 0;
-}
-bool string::operator<(const string &other) const
-{
-  return compare(other) == -1;
-}
-bool string::operator>(const string &other) const
-{
-  return compare(other) == 1;
-}
-bool string::operator==(const string &other) const
-{
-  return compare(other) == 0;
-}
 
-string::~string()
-{
-  delete[] m_str;
-}
-// Я не знаю почему это не работает. 
-std::ostream &operator<<(std::ostream &stream, const string &str)
-{
-  stream << str.m_str;
-  return stream;
-}
-std::ostream &operator>>(std::ostream &stream, string &str)
-{
-  char temp[1000];
-  stream >> temp;
-  str = string(temp);
-  return stream;
-}
+  bool operator>(const string &other) const
+  {
+    return std::strcmp(m_str, other.m_str) > 0;
+  }
 
+  bool operator==(const string &other) const
+  {
+    return std::strcmp(m_str, other.m_str) == 0;
+  }
+
+  // Операторы + и +=
+  string operator+(const string &other) const
+  {
+    size_t new_length = length + other.length;
+    char *new_str = new char[new_length + 1];
+    std::strcpy(new_str, m_str);
+    std::strcat(new_str, other.m_str);
+
+    string result(new_str);
+    delete[] new_str;
+    return result;
+  }
+
+  string &operator+=(const string &other)
+  {
+    *this = *this + other;
+    return *this;
+  }
+
+  // Операторы ввода и вывода в поток
+  friend std::ostream &operator<<(std::ostream &os, const string &str)
+  {
+    if (str.m_str)
+    {
+      os << str.m_str;
+    }
+    return os;
+  }
+
+  friend std::istream &operator>>(std::istream &is, string &str)
+  {
+    char buffer[1000];
+    is >> buffer;
+    str = string(buffer);
+    return is;
+  }
+};
 int main()
 {
   string a = "abacasfas";
