@@ -9,4 +9,38 @@
 // 4.  Метод insert и erase
  
 // Продемонстрируйте работу с классом.
+#include "vectorbool.cpp"
+#include <iostream>
 
+int main() {
+    BoolVector bv;
+    bv.push_back(true);
+    bv.push_back(false);
+    bv.push_back(true);
+
+    // Получение значения
+    for (size_t i = 0; i < bv.size(); ++i) {
+        std::cout << bv[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Изменение значения
+    bv.set(1, true);
+
+    // Проверка изменения
+    for (size_t i = 0; i < bv.size(); ++i) {
+        std::cout << bv[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Вставка и удаление
+    bv.insert(1, false);
+    bv.erase(2);
+
+    for (size_t i = 0; i < bv.size(); ++i) {
+        std::cout << bv[i] << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
