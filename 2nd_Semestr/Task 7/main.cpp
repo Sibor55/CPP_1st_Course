@@ -148,7 +148,7 @@ int main()
     uint8_t n;
     uint8_t buf[100];
 
-    auto Reader = Factory("input2.binf");
+    auto Reader = Factory("input3.binf");
     if (Reader == nullptr)
         return -1;
     Reader->Open();
